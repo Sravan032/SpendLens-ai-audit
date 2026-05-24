@@ -1,13 +1,22 @@
 package com.sravan.spendlens.dto;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+
 import java.util.List;
 
 public class AuditRequest {
 
+    @NotEmpty(message = "At least one tool is required")
+    @Valid
     private List<ToolRequest> tools;
 
+    @Min(value = 1, message = "Team size must be at least 1")
     private Integer teamSize;
 
+    @NotBlank(message = "Use case is required")
     private String useCase;
 
     public AuditRequest() {
