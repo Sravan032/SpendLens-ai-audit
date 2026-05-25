@@ -13,34 +13,34 @@ public class PricingConfig {
         // ChatGPT
         PLAN_PRICING.put(
                 "ChatGPT_Plus",
-                20.0
+                2000.0
         );
 
         PLAN_PRICING.put(
                 "ChatGPT_Team",
-                60.0
+                6000.0
         );
 
         // Cursor
         PLAN_PRICING.put(
                 "Cursor_Pro",
-                20.0
+                2000.0
         );
 
         PLAN_PRICING.put(
                 "Cursor_Business",
-                40.0
+                4000.0
         );
 
         // Claude
         PLAN_PRICING.put(
                 "Claude_Pro",
-                20.0
+                2000.0
         );
 
         PLAN_PRICING.put(
                 "Claude_Team",
-                35.0
+                3500.0
         );
     }
 }
