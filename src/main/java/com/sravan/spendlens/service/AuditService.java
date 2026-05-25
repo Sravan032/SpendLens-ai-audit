@@ -119,6 +119,18 @@ public class AuditService {
 
             totalSavings += savings;
         }
+        RecommendationResponse overlapRecommendation =
+                detectOverlapRecommendations(request);
+
+        if (overlapRecommendation != null) {
+
+            recommendations.add(
+                    overlapRecommendation
+            );
+
+            totalSavings +=
+                    overlapRecommendation.getSavings();
+        }
 
         AuditResponse auditResponse =
                 new AuditResponse();
@@ -136,5 +148,71 @@ public class AuditService {
         );
 
         return auditResponse;
+    }
+    private RecommendationResponse
+    detectOverlapRecommendations(AuditRequest request) {
+
+        boolean hasChatGPT = false;
+
+        boolean hasClaude = false;
+
+        for (ToolRequest tool : request.getTools()) {
+
+            if (
+                    tool.getToolName()
+                            .equalsIgnoreCase("ChatGPT")
+            ) {
+
+                hasChatGPT = true;
+            }
+
+            if (
+                    tool.getToolName()
+                            .equalsIgnoreCase("Claude")
+            ) {
+
+                hasClaude = true;
+            }
+        }
+
+        if (
+                hasChatGPT
+                        &&
+                        hasClaude
+                        &&
+                        (
+                                request.getUseCase()
+                                        .equalsIgnoreCase("writing")
+                                        ||
+                                        request.getUseCase()
+                                                .equalsIgnoreCase("research")
+                        )
+        ) {
+
+            RecommendationResponse response =
+                    new RecommendationResponse();
+
+            response.setToolName(
+                    "AI Stack"
+            );
+
+            response.setCurrentPlan(
+                    "ChatGPT + Claude"
+            );
+
+            response.setRecommendedPlan(
+                    "Consolidate to One Assistant"
+            );
+
+            response.setSavings(20.0);
+
+            response.setReason(
+                    "Your stack includes overlapping general-purpose AI assistants. Consolidating into one primary assistant may reduce redundant spending."
+            );
+
+            return response;
+        }
+
+        return null;
     }
 }
