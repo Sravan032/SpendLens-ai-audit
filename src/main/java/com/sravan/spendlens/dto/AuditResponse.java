@@ -10,6 +10,8 @@ public class AuditResponse {
 
     private Double totalMonthlySpend;
 
+    private String executiveSummary;
+
     private List<RecommendationResponse> recommendations;
     private String shareId;
 
@@ -54,5 +56,13 @@ public class AuditResponse {
 
     public void setTotalMonthlySpend(Double totalMonthlySpend){
         this.totalMonthlySpend=totalMonthlySpend;
+    }
+
+    public String getExecutiveSummary(){
+        return executiveSummary;
+    }
+
+    public void setExecutiveSummary(String executiveSummary) {
+        this.executiveSummary = executiveSummary;
     }
 }

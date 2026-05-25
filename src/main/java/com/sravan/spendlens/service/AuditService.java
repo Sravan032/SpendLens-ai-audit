@@ -18,11 +18,15 @@ public class AuditService {
     private final AuditRepository auditRepository;
     @Autowired
     private final ShareIdService shareIdService;
+    @Autowired
+    private final SummaryService summaryService;
 
-    public AuditService(AuditRepository auditRepository, ShareIdService shareIdService) {
+    public AuditService(AuditRepository auditRepository, ShareIdService shareIdService,
+                        SummaryService summaryService) {
 
         this.auditRepository = auditRepository;
         this.shareIdService = shareIdService;
+        this.summaryService=summaryService;
     }
 
     public AuditResponse generateAudit(
@@ -230,6 +234,17 @@ public class AuditService {
         );
         auditResponse.setTotalMonthlySpend(
                 totalMonthlySpend
+        );
+
+        String executiveSummary =
+                summaryService.generateExecutiveSummary(
+                        recommendations,
+                        totalSavings,
+                        totalSavings * 12
+                );
+
+        auditResponse.setExecutiveSummary(
+                executiveSummary
         );
 
         return auditResponse;
