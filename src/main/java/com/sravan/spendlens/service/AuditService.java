@@ -118,6 +118,8 @@ public class AuditService {
             );
 
             totalSavings += savings;
+
+
         }
         RecommendationResponse overlapRecommendation =
                 detectOverlapRecommendations(request);
@@ -130,6 +132,32 @@ public class AuditService {
 
             totalSavings +=
                     overlapRecommendation.getSavings();
+        }
+
+        RecommendationResponse codingRecommendation =
+                detectCodingOptimization(request);
+
+        if (codingRecommendation != null) {
+
+            recommendations.add(
+                    codingRecommendation
+            );
+
+            totalSavings +=
+                    codingRecommendation.getSavings();
+        }
+
+        RecommendationResponse enterpriseRecommendation =
+                detectEnterpriseOverkill(request);
+
+        if (enterpriseRecommendation != null) {
+
+            recommendations.add(
+                    enterpriseRecommendation
+            );
+
+            totalSavings +=
+                    enterpriseRecommendation.getSavings();
         }
 
         AuditResponse auditResponse =
@@ -149,8 +177,7 @@ public class AuditService {
 
         return auditResponse;
     }
-    private RecommendationResponse
-    detectOverlapRecommendations(AuditRequest request) {
+    private RecommendationResponse detectOverlapRecommendations(AuditRequest request) {
 
         boolean hasChatGPT = false;
 
@@ -211,6 +238,110 @@ public class AuditService {
             );
 
             return response;
+        }
+
+        return null;
+    }
+    private RecommendationResponse
+    detectCodingOptimization(
+            AuditRequest request
+    ) {
+
+        boolean hasCursor = false;
+
+        boolean hasChatGPT = false;
+
+        for (ToolRequest tool : request.getTools()) {
+
+            if (
+                    tool.getToolName()
+                            .equalsIgnoreCase("Cursor")
+            ) {
+
+                hasCursor = true;
+            }
+
+            if (
+                    tool.getToolName()
+                            .equalsIgnoreCase("ChatGPT")
+            ) {
+
+                hasChatGPT = true;
+            }
+        }
+
+        if (
+                request.getUseCase()
+                        .equalsIgnoreCase("coding")
+                        &&
+                        hasChatGPT
+                        &&
+                        !hasCursor
+        ) {
+
+            RecommendationResponse response =
+                    new RecommendationResponse();
+
+            response.setToolName(
+                    "Developer Stack"
+            );
+
+            response.setCurrentPlan(
+                    "ChatGPT for Coding"
+            );
+
+            response.setRecommendedPlan(
+                    "Consider Cursor Pro"
+            );
+
+            response.setSavings(10.0);
+
+            response.setReason(
+                    "Cursor may provide a more specialized coding workflow for engineering teams, potentially reducing reliance on multiple AI subscriptions."
+            );
+
+            return response;
+        }
+
+        return null;
+    }
+    private RecommendationResponse
+    detectEnterpriseOverkill(
+            AuditRequest request
+    ) {
+
+        for (ToolRequest tool : request.getTools()) {
+
+            if (
+                    tool.getPlan()
+                            .equalsIgnoreCase("Enterprise")
+                            &&
+                            tool.getSeats() <= 5
+            ) {
+
+                RecommendationResponse response =
+                        new RecommendationResponse();
+
+                response.setToolName(
+                        tool.getToolName()
+                );
+
+                response.setCurrentPlan(
+                        tool.getPlan()
+                );
+
+                response.setRecommendedPlan(
+                        "Team"
+                );
+
+                response.setSavings(100.0);
+
+                response.setReason(
+                        "Enterprise-tier plans are often unnecessary for smaller teams without advanced compliance or administrative requirements."
+                );
+
+                return response;
+            }
         }
 
         return null;
