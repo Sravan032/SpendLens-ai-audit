@@ -2,6 +2,7 @@ package com.sravan.spendlens.controller;
 
 import com.sravan.spendlens.dto.AuditRequest;
 import com.sravan.spendlens.dto.AuditResponse;
+import com.sravan.spendlens.entity.Audit;
 import com.sravan.spendlens.service.AuditService;
 
 import jakarta.validation.Valid;
@@ -21,6 +22,14 @@ public class AuditController {
 
         return auditService.generateAudit(
                 request
+        );
+    }
+
+    @GetMapping("/{shareId}")
+    public Audit getAudit(@PathVariable String shareId) {
+
+        return auditService.getAuditByShareId(
+                shareId
         );
     }
 }

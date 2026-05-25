@@ -3,6 +3,10 @@ package com.sravan.spendlens.service;
 import com.sravan.spendlens.config.PricingConfig;
 import com.sravan.spendlens.dto.*;
 
+import com.sravan.spendlens.entity.Audit;
+import com.sravan.spendlens.exception.ResourceNotFoundException;
+import com.sravan.spendlens.repository.AuditRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -10,6 +14,16 @@ import java.util.List;
 
 @Service
 public class AuditService {
+    @Autowired
+    private final AuditRepository auditRepository;
+    @Autowired
+    private final ShareIdService shareIdService;
+
+    public AuditService(AuditRepository auditRepository, ShareIdService shareIdService) {
+
+        this.auditRepository = auditRepository;
+        this.shareIdService = shareIdService;
+    }
 
     public AuditResponse generateAudit(
             AuditRequest request
@@ -19,11 +33,14 @@ public class AuditService {
                 new ArrayList<>();
 
         double totalSavings = 0;
+        double totalMonthlySpend = 0;
 
         for (ToolRequest tool : request.getTools()) {
 
             RecommendationResponse response =
                     new RecommendationResponse();
+
+            totalMonthlySpend += tool.getMonthlySpend();
 
             response.setToolName(
                     tool.getToolName()
@@ -175,6 +192,46 @@ public class AuditService {
                 totalSavings * 12
         );
 
+        Audit audit = new Audit();
+
+        audit.setShareId(
+                shareIdService.generateShareId()
+        );
+
+        audit.setTeamSize(
+                request.getTeamSize()
+        );
+
+        audit.setUseCase(
+                request.getUseCase()
+        );
+
+        audit.setTotalMonthlySpend(
+                totalMonthlySpend
+        );
+
+        audit.setTotalMonthlySavings(
+                totalSavings
+        );
+
+        audit.setTotalAnnualSavings(
+                totalSavings * 12
+        );
+
+        audit.setCreatedAt(
+                java.time.LocalDateTime.now()
+        );
+
+
+        auditRepository.save(audit);
+
+        auditResponse.setShareId(
+                audit.getShareId()
+        );
+        auditResponse.setTotalMonthlySpend(
+                totalMonthlySpend
+        );
+
         return auditResponse;
     }
     private RecommendationResponse detectOverlapRecommendations(AuditRequest request) {
@@ -305,10 +362,7 @@ public class AuditService {
 
         return null;
     }
-    private RecommendationResponse
-    detectEnterpriseOverkill(
-            AuditRequest request
-    ) {
+    private RecommendationResponse detectEnterpriseOverkill(AuditRequest request) {
 
         for (ToolRequest tool : request.getTools()) {
 
@@ -346,4 +400,16 @@ public class AuditService {
 
         return null;
     }
+    public Audit getAuditByShareId(String shareId) {
+
+        return auditRepository
+                .findByShareId(shareId)
+                .orElseThrow(() ->
+
+                        new ResourceNotFoundException(
+                                "Audit report not found"
+                        )
+                );
+    }
+
 }

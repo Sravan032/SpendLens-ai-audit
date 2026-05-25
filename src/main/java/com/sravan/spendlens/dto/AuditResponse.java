@@ -8,7 +8,10 @@ public class AuditResponse {
 
     private Double totalAnnualSavings;
 
+    private Double totalMonthlySpend;
+
     private List<RecommendationResponse> recommendations;
+    private String shareId;
 
     public AuditResponse() {
     }
@@ -35,5 +38,21 @@ public class AuditResponse {
 
     public void setRecommendations(List<RecommendationResponse> recommendations) {
         this.recommendations = recommendations;
+    }
+
+    public String getShareId(){
+        return shareId;
+    }
+
+    public void setShareId(String shareId){
+        this.shareId=shareId;
+    }
+
+    public Double getTotalMonthlySpend(){
+        return totalMonthlySpend;
+    }
+
+    public void setTotalMonthlySpend(Double totalMonthlySpend){
+        this.totalMonthlySpend=totalMonthlySpend;
     }
 }
