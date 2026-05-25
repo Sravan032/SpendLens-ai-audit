@@ -1,5 +1,6 @@
 package com.sravan.spendlens.service;
 
+import com.sravan.spendlens.config.PricingConfig;
 import com.sravan.spendlens.dto.*;
 
 import org.springframework.stereotype.Service;
@@ -51,7 +52,10 @@ public class AuditService {
 
                 recommendedPlan = "Plus";
 
-                savings = 50.0;
+                savings =
+                        PricingConfig.PLAN_PRICING.get("ChatGPT_Team")
+                                -
+                                PricingConfig.PLAN_PRICING.get("ChatGPT_Plus");
 
                 reason =
                         "Small teams typically do not require collaboration features included in Team plans.";
@@ -68,7 +72,10 @@ public class AuditService {
 
                 recommendedPlan = "Pro";
 
-                savings = 40.0;
+                savings =
+                        PricingConfig.PLAN_PRICING.get("Cursor_Business")
+                                -
+                                PricingConfig.PLAN_PRICING.get("Cursor_Pro");
 
                 reason =
                         "Cursor Pro is usually sufficient for smaller engineering teams.";
@@ -85,7 +92,10 @@ public class AuditService {
 
                 recommendedPlan = "Pro";
 
-                savings = 30.0;
+                savings =
+                        PricingConfig.PLAN_PRICING.get("Claude_Team")
+                                -
+                                PricingConfig.PLAN_PRICING.get("Claude_Pro");
 
                 reason =
                         "Claude Pro may provide similar value for smaller research-focused teams.";
