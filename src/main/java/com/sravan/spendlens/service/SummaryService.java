@@ -4,10 +4,22 @@ import com.sravan.spendlens.dto.RecommendationResponse;
 
 import org.springframework.stereotype.Service;
 
+import org.springframework.web.reactive.function.client.WebClient;
+
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class SummaryService {
+
+    private final WebClient webClient;
+
+    public SummaryService(
+            WebClient openAIWebClient
+    ) {
+
+        this.webClient = openAIWebClient;
+    }
 
     public String generateExecutiveSummary(
 
@@ -18,38 +30,90 @@ public class SummaryService {
             Double totalAnnualSavings
     ) {
 
-        if (recommendations.isEmpty()) {
-
-            return "Your current AI tooling stack appears reasonably optimized with limited cost-saving opportunities identified.";
-        }
-
-        StringBuilder summary =
+        StringBuilder recommendationText =
                 new StringBuilder();
 
-        summary.append(
-                "Our audit identified potential AI spend optimization opportunities totaling approximately ₹"
+        for (
+                RecommendationResponse recommendation
+                : recommendations
+        ) {
+
+            recommendationText.append(
+                    recommendation.getToolName()
+            );
+
+            recommendationText.append(" : ");
+
+            recommendationText.append(
+                    recommendation.getReason()
+            );
+
+            recommendationText.append("\n");
+        }
+
+        String prompt = """
+                You are an AI spend optimization consultant.
+
+                Generate a concise executive summary for a company audit.
+
+                Monthly Savings: ₹%s
+                Annual Savings: ₹%s
+
+                Recommendations:
+                %s
+
+                Keep the tone professional, concise, and business-oriented.
+                """.formatted(
+
+                totalMonthlySavings.intValue(),
+
+                totalAnnualSavings.intValue(),
+
+                recommendationText
         );
 
-        summary.append(
-                totalMonthlySavings.intValue()
-        );
+        Map<String, Object> requestBody =
+                Map.of(
 
-        summary.append(
-                " per month and ₹"
-        );
+                        "model", "gpt-3.5-turbo",
 
-        summary.append(
-                totalAnnualSavings.intValue()
-        );
+                        "messages", List.of(
 
-        summary.append(
-                " annually. "
-        );
+                                Map.of(
+                                        "role", "user",
+                                        "content", prompt
+                                )
+                        )
+                );
 
-        summary.append(
-                "Key recommendations include optimizing subscription tiers, reducing overlapping AI tooling, and aligning plans more closely with actual team usage patterns."
-        );
+        try {
 
-        return summary.toString();
+            Map response = webClient.post()
+
+                    .uri("/chat/completions")
+
+                    .bodyValue(requestBody)
+
+                    .retrieve()
+
+                    .bodyToMono(Map.class)
+
+                    .block();
+
+            List choices =
+                    (List) response.get("choices");
+
+            Map choice =
+                    (Map) choices.get(0);
+
+            Map message =
+                    (Map) choice.get("message");
+
+            return message.get("content")
+                    .toString();
+        } catch (Exception ex) {
+
+            return "AI summary generation temporarily unavailable. However, significant AI spend optimization opportunities were identified.";
+        }
     }
 }
