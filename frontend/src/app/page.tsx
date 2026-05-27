@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { useFieldArray, useForm } from "react-hook-form";
 
-import api from "@/services/api";
+import api from "../services/api";
 
 import { TOOL_OPTIONS } from "@/lib/tools";
 
