@@ -8,7 +8,12 @@ import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin(origins = "http://localhost:3030")
+@CrossOrigin(
+        origins = {
+                "http://localhost:3030",
+                "https://spendlens-ai-audit-2.onrender.com"
+        }
+)
 @RestController
 @RequestMapping("/api/leads")
 public class LeadController {
