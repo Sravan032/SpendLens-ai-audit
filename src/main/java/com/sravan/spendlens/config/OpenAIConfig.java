@@ -15,6 +15,7 @@ public class OpenAIConfig {
 
     @Bean
     public WebClient openAIWebClient() {
+        System.out.println(apiKey);
 
         return WebClient.builder()
 

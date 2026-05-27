@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.*;
 
+@CrossOrigin(origins = "http://localhost:3030")
 @RestController
 @RequestMapping("/api/leads")
 public class LeadController {

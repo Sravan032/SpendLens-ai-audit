@@ -6,6 +6,7 @@ import com.sravan.spendlens.dto.*;
 import com.sravan.spendlens.entity.Audit;
 import com.sravan.spendlens.exception.ResourceNotFoundException;
 import com.sravan.spendlens.repository.AuditRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,19 +15,25 @@ import java.util.List;
 
 @Service
 public class AuditService {
+
     @Autowired
     private final AuditRepository auditRepository;
+
     @Autowired
     private final ShareIdService shareIdService;
+
     @Autowired
     private final SummaryService summaryService;
 
-    public AuditService(AuditRepository auditRepository, ShareIdService shareIdService,
-                        SummaryService summaryService) {
+    public AuditService(
+            AuditRepository auditRepository,
+            ShareIdService shareIdService,
+            SummaryService summaryService
+    ) {
 
         this.auditRepository = auditRepository;
         this.shareIdService = shareIdService;
-        this.summaryService=summaryService;
+        this.summaryService = summaryService;
     }
 
     public AuditResponse generateAudit(
@@ -37,6 +44,7 @@ public class AuditService {
                 new ArrayList<>();
 
         double totalSavings = 0;
+
         double totalMonthlySpend = 0;
 
         for (ToolRequest tool : request.getTools()) {
@@ -44,7 +52,8 @@ public class AuditService {
             RecommendationResponse response =
                     new RecommendationResponse();
 
-            totalMonthlySpend += tool.getMonthlySpend();
+            totalMonthlySpend +=
+                    tool.getMonthlySpend();
 
             response.setToolName(
                     tool.getToolName()
@@ -138,10 +147,13 @@ public class AuditService {
                     response
             );
 
-            totalSavings += savings;
-
-
+            totalSavings =
+                    Math.max(
+                            totalSavings,
+                            savings
+                    );
         }
+
         RecommendationResponse overlapRecommendation =
                 detectOverlapRecommendations(request);
 
@@ -151,8 +163,11 @@ public class AuditService {
                     overlapRecommendation
             );
 
-            totalSavings +=
-                    overlapRecommendation.getSavings();
+            totalSavings =
+                    Math.max(
+                            totalSavings,
+                            overlapRecommendation.getSavings()
+                    );
         }
 
         RecommendationResponse codingRecommendation =
@@ -164,8 +179,11 @@ public class AuditService {
                     codingRecommendation
             );
 
-            totalSavings +=
-                    codingRecommendation.getSavings();
+            totalSavings =
+                    Math.max(
+                            totalSavings,
+                            codingRecommendation.getSavings()
+                    );
         }
 
         RecommendationResponse enterpriseRecommendation =
@@ -177,8 +195,11 @@ public class AuditService {
                     enterpriseRecommendation
             );
 
-            totalSavings +=
-                    enterpriseRecommendation.getSavings();
+            totalSavings =
+                    Math.max(
+                            totalSavings,
+                            enterpriseRecommendation.getSavings()
+                    );
         }
 
         AuditResponse auditResponse =
@@ -226,12 +247,12 @@ public class AuditService {
                 java.time.LocalDateTime.now()
         );
 
-
         auditRepository.save(audit);
 
         auditResponse.setShareId(
                 audit.getShareId()
         );
+
         auditResponse.setTotalMonthlySpend(
                 totalMonthlySpend
         );
@@ -249,7 +270,10 @@ public class AuditService {
 
         return auditResponse;
     }
-    private RecommendationResponse detectOverlapRecommendations(AuditRequest request) {
+
+    private RecommendationResponse detectOverlapRecommendations(
+            AuditRequest request
+    ) {
 
         boolean hasChatGPT = false;
 
@@ -314,8 +338,8 @@ public class AuditService {
 
         return null;
     }
-    private RecommendationResponse
-    detectCodingOptimization(
+
+    private RecommendationResponse detectCodingOptimization(
             AuditRequest request
     ) {
 
@@ -377,7 +401,10 @@ public class AuditService {
 
         return null;
     }
-    private RecommendationResponse detectEnterpriseOverkill(AuditRequest request) {
+
+    private RecommendationResponse detectEnterpriseOverkill(
+            AuditRequest request
+    ) {
 
         for (ToolRequest tool : request.getTools()) {
 
@@ -415,7 +442,10 @@ public class AuditService {
 
         return null;
     }
-    public Audit getAuditByShareId(String shareId) {
+
+    public Audit getAuditByShareId(
+            String shareId
+    ) {
 
         return auditRepository
                 .findByShareId(shareId)
@@ -426,5 +456,4 @@ public class AuditService {
                         )
                 );
     }
-
 }
