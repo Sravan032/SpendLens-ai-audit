@@ -80,6 +80,9 @@ export default function Home() {
   const [auditResult, setAuditResult] =
     useState<AuditResult | null>(null);
 
+  const [loading, setLoading] =
+    useState(false);
+
   const chartData = auditResult
     ? [
         {
@@ -97,6 +100,8 @@ export default function Home() {
     data: AuditForm
   ) => {
 
+    setLoading(true);
+
     try {
 
       const response =
@@ -109,10 +114,6 @@ export default function Home() {
         response.data
       );
 
-      alert(
-        "Audit Generated Successfully"
-      );
-
     } catch (error) {
 
       console.error(error);
@@ -120,16 +121,20 @@ export default function Home() {
       alert(
         "Failed to generate audit"
       );
+
+    } finally {
+
+      setLoading(false);
     }
   };
 
   return (
 
-    <main className="min-h-screen bg-gray-100 p-6 md:p-10">
+    <main className="min-h-screen bg-gray-100 p-10">
 
-      <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-lg p-6 md:p-8">
+      <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-lg p-8">
 
-        <h1 className="text-3xl md:text-4xl font-bold mb-8">
+        <h1 className="text-5xl font-bold mb-8">
           SpendLens AI Audit
         </h1>
 
@@ -140,30 +145,39 @@ export default function Home() {
 
           <div>
 
-            <label className="block mb-2 font-medium">
+            <label className="block mb-2 font-semibold">
               Team Size
             </label>
 
             <input
               type="number"
-              {...register("teamSize", {
-                valueAsNumber: true,
-              })}
-              className="w-full border p-3 rounded"
-              placeholder="e.g. 10"
+              {...register("teamSize")}
+              className="
+                border
+                rounded-xl
+                px-4
+                py-3
+                w-full
+              "
             />
 
           </div>
 
           <div>
 
-            <label className="block mb-2 font-medium">
+            <label className="block mb-2 font-semibold">
               Primary Use Case
             </label>
 
             <select
               {...register("useCase")}
-              className="w-full border p-3 rounded"
+              className="
+                border
+                rounded-xl
+                px-4
+                py-3
+                w-full
+              "
             >
 
               <option value="">
@@ -174,23 +188,31 @@ export default function Home() {
                 Coding
               </option>
 
-              <option value="research">
-                Research
+              <option value="marketing">
+                Marketing
               </option>
 
-              <option value="writing">
-                Writing
+              <option value="research">
+                Research
               </option>
 
             </select>
 
           </div>
 
-          <div className="space-y-6">
+          <div>
 
-            <div className="flex justify-between items-center">
+            <div className="
+              flex
+              justify-between
+              items-center
+              mb-4
+            ">
 
-              <h2 className="text-2xl font-semibold">
+              <h2 className="
+                text-2xl
+                font-bold
+              ">
                 AI Tools
               </h2>
 
@@ -204,281 +226,339 @@ export default function Home() {
                     seats: 1,
                   })
                 }
-                className="bg-black text-white px-4 py-2 rounded"
+                className="
+                  bg-black
+                  text-white
+                  px-4
+                  py-2
+                  rounded-xl
+                "
               >
                 Add Tool
               </button>
 
             </div>
 
-            {fields.map((field, index) => (
+            <div className="space-y-6">
 
-              <div
-                key={field.id}
-                className="border rounded-xl p-6 bg-gray-50 grid grid-cols-1 md:grid-cols-2 gap-4"
-              >
+              {fields.map(
+                (field, index) => {
 
-                <div>
+                  const selectedTool =
+                    watch(
+                      `tools.${index}.toolName`
+                    );
 
-                  <label className="block mb-2">
-                    Tool Name
-                  </label>
+                  return (
 
-                  <select
-                    {...register(`tools.${index}.toolName`)}
-                    className="w-full border p-3 rounded"
-                  >
+                    <div
+                      key={field.id}
+                      className="
+                        border
+                        rounded-2xl
+                        p-6
+                        bg-gray-50
+                      "
+                    >
 
-                    <option value="">
-                      Select Tool
-                    </option>
+                      <div className="
+                        grid
+                        grid-cols-2
+                        gap-4
+                      ">
 
-                    {Object.keys(TOOL_OPTIONS).map(
-                      (tool) => (
+                        <div>
 
-                        <option
-                          key={tool}
-                          value={tool}
-                        >
-                          {tool}
-                        </option>
-                      )
-                    )}
+                          <label className="
+                            block
+                            mb-2
+                            font-semibold
+                          ">
+                            Tool Name
+                          </label>
 
-                  </select>
+                          <select
+                            {...register(
+                              `tools.${index}.toolName`
+                            )}
+                            className="
+                              border
+                              rounded-xl
+                              px-4
+                              py-3
+                              w-full
+                            "
+                          >
 
-                </div>
+                            <option value="">
+                              Select Tool
+                            </option>
 
-                <div>
+                            {Object.keys(
+                              TOOL_OPTIONS
+                            ).map((tool) => (
 
-                  <label className="block mb-2">
-                    Plan
-                  </label>
+                              <option
+                                key={tool}
+                                value={tool}
+                              >
+                                {tool}
+                              </option>
+                            ))}
 
-                  <select
-                    {...register(`tools.${index}.plan`)}
-                    className="w-full border p-3 rounded"
-                  >
+                          </select>
 
-                    <option value="">
-                      Select Plan
-                    </option>
+                        </div>
 
-                    {TOOL_OPTIONS[
-                      watch(
-                        `tools.${index}.toolName`
-                      ) as keyof typeof TOOL_OPTIONS
-                    ]?.map((plan) => (
+                        <div>
 
-                      <option
-                        key={plan}
-                        value={plan}
+                          <label className="
+                            block
+                            mb-2
+                            font-semibold
+                          ">
+                            Plan
+                          </label>
+
+                          <select
+                            {...register(
+                              `tools.${index}.plan`
+                            )}
+                            className="
+                              border
+                              rounded-xl
+                              px-4
+                              py-3
+                              w-full
+                            "
+                          >
+
+                            <option value="">
+                              Select Plan
+                            </option>
+
+                            {(TOOL_OPTIONS[
+                              selectedTool as keyof typeof TOOL_OPTIONS
+                            ] || []).map((plan) => (
+
+                              <option
+                                key={plan}
+                                value={plan}
+                              >
+                                {plan}
+                              </option>
+                            ))}
+
+                          </select>
+
+                        </div>
+
+                        <div>
+
+                          <label className="
+                            block
+                            mb-2
+                            font-semibold
+                          ">
+                            Monthly Spend
+                          </label>
+
+                          <input
+                            type="number"
+                            placeholder="eg 120"
+                            {...register(
+                              `tools.${index}.monthlySpend`,
+                              {
+                                valueAsNumber: true,
+                              }
+                            )}
+                            className="
+                              border
+                              rounded-xl
+                              px-4
+                              py-3
+                              w-full
+                            "
+                          />
+
+                        </div>
+
+                        <div>
+
+                          <label className="
+                            block
+                            mb-2
+                            font-semibold
+                          ">
+                            Seats
+                          </label>
+
+                          <input
+                            type="number"
+                            {...register(
+                              `tools.${index}.seats`,
+                              {
+                                valueAsNumber: true,
+                              }
+                            )}
+                            className="
+                              border
+                              rounded-xl
+                              px-4
+                              py-3
+                              w-full
+                            "
+                          />
+
+                        </div>
+
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          remove(index)
+                        }
+                        className="
+                          mt-4
+                          text-red-500
+                          font-semibold
+                        "
                       >
-                        {plan}
-                      </option>
-                    ))}
+                        Remove Tool
+                      </button>
 
-                  </select>
+                    </div>
+                  );
+                }
+              )}
 
-                </div>
-
-                <div>
-
-                  <label className="block mb-2">
-                    Monthly Spend (₹)
-                  </label>
-
-                  <input
-                    type="number"
-                    placeholder="e.g. 1200"
-                    {...register(
-                      `tools.${index}.monthlySpend`,
-                      {
-                        valueAsNumber: true,
-                      }
-                    )}
-                    className="w-full border p-3 rounded"
-                  />
-
-                </div>
-
-                <div>
-
-                  <label className="block mb-2">
-                    Seats
-                  </label>
-
-                  <input
-                    type="number"
-                    placeholder="e.g. 5"
-                    {...register(
-                      `tools.${index}.seats`,
-                      {
-                        valueAsNumber: true,
-                      }
-                    )}
-                    className="w-full border p-3 rounded"
-                  />
-
-                </div>
-
-                {fields.length > 1 && (
-
-                  <button
-                    type="button"
-                    onClick={() => remove(index)}
-                    className="bg-red-500 text-white px-4 py-2 rounded col-span-1 md:col-span-2"
-                  >
-                    Remove Tool
-                  </button>
-
-                )}
-
-              </div>
-            ))}
+            </div>
 
           </div>
 
           <button
             type="submit"
-            className="w-full bg-black text-white py-4 rounded-xl text-lg font-semibold"
+            disabled={loading}
+            className="
+              bg-black
+              text-white
+              px-8
+              py-4
+              rounded-2xl
+              font-semibold
+              text-lg
+              disabled:opacity-50
+            "
           >
-            Generate Audit
+
+            {loading
+              ? "Generating Audit..."
+              : "Generate Audit"
+            }
+
           </button>
 
         </form>
 
         {auditResult && (
 
-          <>
+          <div className="mt-12 space-y-8">
 
-            <div className="mt-10 space-y-6">
+            <div className="
+              grid
+              grid-cols-2
+              gap-6
+            ">
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="
+                bg-green-100
+                rounded-2xl
+                p-6
+              ">
 
-                <div className="bg-green-100 p-6 rounded-2xl">
-
-                  <h2 className="text-xl font-semibold mb-2">
-                    Monthly Savings
-                  </h2>
-
-                  <p className="text-3xl font-bold">
-                    ₹{auditResult.totalMonthlySavings}
-                  </p>
-
-                </div>
-
-                <div className="bg-blue-100 p-6 rounded-2xl">
-
-                  <h2 className="text-xl font-semibold mb-2">
-                    Annual Savings
-                  </h2>
-
-                  <p className="text-3xl font-bold">
-                    ₹{auditResult.totalAnnualSavings}
-                  </p>
-
-                </div>
-
-              </div>
-
-              <div className="bg-white border rounded-2xl p-6">
-
-                <h2 className="text-2xl font-semibold mb-4">
-                  Executive Summary
+                <h2 className="
+                  text-xl
+                  font-semibold
+                  mb-2
+                ">
+                  Monthly Savings
                 </h2>
 
-                <p className="text-gray-700 leading-7">
-                  {auditResult.executiveSummary}
+                <p className="
+                  text-4xl
+                  font-bold
+                ">
+                  ₹{auditResult.totalMonthlySavings}
                 </p>
 
               </div>
 
-              <div className="bg-white border rounded-2xl p-6">
+              <div className="
+                bg-blue-100
+                rounded-2xl
+                p-6
+              ">
 
-                <h2 className="text-2xl font-semibold mb-4">
-                  Recommendations
+                <h2 className="
+                  text-xl
+                  font-semibold
+                  mb-2
+                ">
+                  Annual Savings
                 </h2>
 
-                <div className="space-y-4">
-
-                  {auditResult.recommendations?.length > 0 ? (
-
-                    auditResult.recommendations.map(
-                      (recommendation, index) => (
-
-                        <div
-                          key={index}
-                          className="border rounded-xl p-4 bg-gray-50"
-                        >
-
-                          <h3 className="text-lg font-semibold">
-                            {recommendation.toolName}
-                          </h3>
-
-                          <p>
-                            Current Plan:
-                            {" "}
-                            {recommendation.currentPlan}
-                          </p>
-
-                          <p>
-                            Recommended:
-                            {" "}
-                            {recommendation.recommendedPlan}
-                          </p>
-
-                          <p>
-                            Estimated Savings:
-                            {" "}
-                            ₹{recommendation.savings}
-                          </p>
-
-                          <p className="text-gray-600 mt-2">
-                            {recommendation.reason}
-                          </p>
-
-                        </div>
-                      )
-                    )
-
-                  ) : (
-
-                    <p className="text-gray-500">
-                      No recommendations available for this report.
-                    </p>
-
-                  )}
-
-                </div>
-
-              </div>
-
-              <div className="bg-yellow-100 p-6 rounded-2xl">
-
-                <h2 className="text-xl font-semibold mb-2">
-                  Shared Report
-                </h2>
-
-                <a
-                  href={`/share/${auditResult.shareId}`}
-                  target="_blank"
-                  className="text-blue-600 underline text-xl font-semibold"
-                >
-                  View Shared Report
-                </a>
+                <p className="
+                  text-4xl
+                  font-bold
+                ">
+                  ₹{auditResult.totalAnnualSavings}
+                </p>
 
               </div>
 
             </div>
 
-            <div className="bg-white border rounded-2xl p-6 mt-6">
+            <div className="
+              bg-white
+              border
+              rounded-2xl
+              p-6
+            ">
 
-              <h2 className="text-2xl font-semibold mb-6">
-                Savings Analytics
+              <h2 className="
+                text-2xl
+                font-bold
+                mb-4
+              ">
+                Executive Summary
               </h2>
 
-              <div className="w-full h-80">
+              <p className="
+                text-gray-700
+                leading-7
+              ">
+                {auditResult.executiveSummary}
+              </p>
+
+            </div>
+
+            <div className="
+              bg-white
+              border
+              rounded-2xl
+              p-6
+            ">
+
+              <h2 className="
+                text-2xl
+                font-bold
+                mb-4
+              ">
+                Savings Chart
+              </h2>
+
+              <div className="h-80">
 
                 <ResponsiveContainer
                   width="100%"
@@ -495,7 +575,7 @@ export default function Home() {
 
                     <Bar
                       dataKey="amount"
-                      radius={[10, 10, 0, 0]}
+                      fill="#000000"
                     />
 
                   </BarChart>
@@ -506,8 +586,96 @@ export default function Home() {
 
             </div>
 
-          </>
+            <div className="
+              bg-white
+              border
+              rounded-2xl
+              p-6
+            ">
 
+              <h2 className="
+                text-2xl
+                font-bold
+                mb-4
+              ">
+                Recommendations
+              </h2>
+
+              <div className="space-y-4">
+
+                {auditResult.recommendations?.map(
+                  (
+                    recommendation,
+                    index
+                  ) => (
+
+                    <div
+                      key={index}
+                      className="
+                        border
+                        rounded-xl
+                        p-4
+                        bg-gray-50
+                      "
+                    >
+
+                      <h3 className="
+                        text-lg
+                        font-semibold
+                      ">
+                        {recommendation.toolName}
+                      </h3>
+
+                      <p>
+                        Current Plan:
+                        {" "}
+                        {recommendation.currentPlan}
+                      </p>
+
+                      <p>
+                        Recommended:
+                        {" "}
+                        {recommendation.recommendedPlan}
+                      </p>
+
+                      <p>
+                        Estimated Savings:
+                        {" "}
+                        ₹{recommendation.savings}
+                      </p>
+
+                      <p className="
+                        text-gray-600
+                        mt-2
+                      ">
+                        {recommendation.reason}
+                      </p>
+
+                    </div>
+                  )
+                )}
+
+              </div>
+
+            </div>
+
+            <a
+              href={`/share/${auditResult.shareId}`}
+              target="_blank"
+              className="
+                inline-block
+                bg-black
+                text-white
+                px-6
+                py-3
+                rounded-xl
+                font-semibold
+              "
+            >
+              Open Shared Report
+            </a>
+
+          </div>
         )}
 
       </div>
